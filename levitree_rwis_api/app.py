@@ -1,6 +1,5 @@
 from sanic import Sanic
-from sanic_ext import cors
-from vfd.VFDBlueprint import VFDBlueprint
+from .vfd.VFDBlueprint import VFDBlueprint
 from sanic.log import logger
 
 logger.setLevel("DEBUG")

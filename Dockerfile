@@ -1,4 +1,4 @@
-FROM python:3.11-slim as build
+FROM python:3.11-alpine as build
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
     # Allow statements and log messages to immediately appear
@@ -9,6 +9,8 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_NO_CACHE_DIR=1 \
     POETRY_VERSION=1.3.2
 
+RUN apk add gcc musl-dev libffi-dev
+
 WORKDIR /app
 COPY pyproject.toml poetry.lock ./
 
@@ -18,7 +20,7 @@ RUN pip install "poetry==$POETRY_VERSION" \
 
 
 ### Final stage
-FROM python:3.11-slim as final
+FROM python:3.11-alpine as final
 
 WORKDIR /app
 

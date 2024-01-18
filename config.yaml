@@ -1,0 +1,19 @@
+port: 3001
+modbus_path: serial:///dev/tty.usbserial-B000DTU5
+modbus_devices:
+  - type: VFD
+    slave_id: 1
+    name: TestVFD
+    display_name: Test
+    model: Frenic
+adcs:
+  - name: Pressure Sensor
+    id: Pump_Pressure
+    type: ads1115
+    address: 0x48
+    channel: 3
+distance_sensors:
+  - name: Water Tank Fill Level
+    id: Mix_Tank_Distance
+    gpio_trigger: 18
+    gpio_echo: 24

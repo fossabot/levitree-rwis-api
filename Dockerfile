@@ -18,9 +18,11 @@ RUN pip install "poetry==$POETRY_VERSION" \
     && poetry install --no-root --no-ansi --no-interaction \
     && poetry export -f requirements.txt -o requirements.txt
 
-
 ### Final stage
 FROM python:3.11-alpine as final
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
 
 WORKDIR /app
 
@@ -32,4 +34,6 @@ COPY ./levitree_rwis_api levitree_rwis_api
 
 EXPOSE 8000
 
-CMD ["python", "-m", "sanic", "levitree_rwis_api.app"]
+COPY ./config.yaml .
+
+CMD ["python", "-m", "sanic", "levitree_rwis_api.app", "--host", "0.0.0.0", "--port", "8000"]

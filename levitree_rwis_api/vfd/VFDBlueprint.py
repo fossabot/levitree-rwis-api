@@ -1,5 +1,6 @@
 import asyncio
 from json import dumps
+import os
 import yaml
 
 from sanic.response import json
@@ -41,7 +42,13 @@ async def get_vfd_list(request):
         raise InternalServerError("VFD subsystem not initialized!")
     controller: VFDController.VFDController = request.app.ctx.vfd_controller
 
-    return json(controller.get_vfds_arr(state=False))
+    vfds = controller.get_vfds()
+    arr = []
+    for vfd_id in vfds:
+        vfd = vfds[vfd_id].model_dump()
+        del vfd['state']
+        arr.append(vfd)
+    return json(arr)
 
 @VFDBlueprint.get("/<vfd_id>/state")
 @openapi.definition(
@@ -72,7 +79,7 @@ async def read_vfd_registers(request, vfd_id: str, code: str, num_regs: int):
         raise InternalServerError("VFD subsystem not initialized!")
     controller: VFDController.VFDController = request.app.ctx.vfd_controller
 
-    if not controller.hasVFD(vfd_id):
+    if not controller.has_vfd(vfd_id):
         raise BadRequest(f"VFD {vfd_id} does not exist!")
 
     register_array = await controller.read_vfd_registers(vfd_id, code, num_regs)
@@ -141,9 +148,11 @@ async def set_vfd_state(request, vfd_id: str, body: VFDTypes.SetVFDFrequencyPara
 
 @VFDBlueprint.listener('before_server_start')
 def open_serial_port(app):
-    with open("config.yaml") as cfgFile:
+    config_path = os.environ.get("CONFIG_PATH", "./config.yaml")
+    with open(config_path) as cfgFile:
         cfg = yaml.load(cfgFile, Loader=yaml.FullLoader)
-        app.ctx.vfd_controller = VFDController.VFDController(cfg["modbus_path"])
+        modbus_path = os.environ.get("MODBUS_PATH", "serial:///dev/tty.usbserial-B000DTU5")
+        app.ctx.vfd_controller = VFDController.VFDController(modbus_path)
         for modbus_device in cfg["modbus_devices"]:
             if modbus_device["type"] == "VFD":
                 app.ctx.vfd_controller.register_vfd(modbus_device["slave_id"], modbus_device["display_name"], modbus_device["name"], model=modbus_device["model"])

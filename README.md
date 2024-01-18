@@ -6,6 +6,10 @@
 
 RWIS-API controls and monitors various hardware devices connected to the control system.
 
+```bash
+ghcr.io/acvigue/levitree-rwis-api:main (linux/arm64,linux/amd64,linux/arm/v7)
+```
+
 ## Features
 
 These currently include:
@@ -19,19 +23,17 @@ Support is planned for:
 
 ## Configuration
 
-To run this project, you will need to add the following environment variables to your .env file
+To run this project, you will need to use the following environment variables
 
-`API_KEY`
+`CONFIG_PATH = *path to config file*`
 
-`ANOTHER_API_KEY`
+`MODBUS_PATH = *path to modbus serial device*`
 
 ## Run Locally
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python -m sanic server
+poetry install
+poetry run python -m sanic levitree_rwis_api.app
 ```
 
 ## Authors
